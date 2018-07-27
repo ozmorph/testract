@@ -1,0 +1,45 @@
+[package]
+name = "testract"
+version = "0.1.0"
+authors = ["<ozmorph@gmail.com>"]
+description = "Testract is a library for parsing archive files from the Elder Scrolls™ and Fallout™ game franchises."
+repository = "https://github.com/ozmorph/testract"
+documentation = "https://docs.rs/testract/"
+readme = "README.md"
+license = "MIT"
+keywords = ["parser", "game", "encoding", "parsing"]
+categories = ["parsing", "parser-implementations", "games"]
+publish = false
+
+[dependencies]
+bitflags    = "1.0.3"
+byteorder   = "1.2.3"
+lz4         = "1.22.0"
+nom         = "4.0.0"
+twox-hash   = "1.1.1"
+
+[dependencies.clap]
+version = "2.32.0"
+# features turned off: colored error messages and using the vec_map crate
+default-features = false
+features = ["suggestions"]
+
+[dependencies.failure]
+version = "0.1.1"
+# the default-features includes failure_derive which isn't used
+# and pulls in a bunch of dependencies on its own
+default-features = false
+features = ["std"]
+
+[dependencies.flate2]
+version = "1.0.1"
+# zlib is used rather than the default miniz implementation because Bethesda
+# uses a weird encoding format that miniz does not appear to support and zlib does 
+default-features = false
+features = ["zlib"]
+
+[target.'cfg(windows)'.dependencies]
+winreg = "0.5"
+
+[profile.release]
+lto = false
