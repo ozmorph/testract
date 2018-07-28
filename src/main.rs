@@ -15,7 +15,7 @@ use std::path::{Path, PathBuf};
 use clap::{App, Arg, ArgGroup, ArgMatches};
 use failure::ResultExt;
 
-use testract::{autodetect_data_path, AutodetectGames, BSAFile, Result, TESReader, BSA, BA2};
+use testract::{autodetect_data_path, AutodetectGames, BA2, BSAFile, Result, TESReader, BSA};
 
 fn parse_archives(matches: &ArgMatches, data_path: &PathBuf) -> Result<Vec<BSA>> {
     let mut bsa_files: Vec<BSA> = Vec::new();
@@ -37,7 +37,7 @@ fn parse_archives(matches: &ArgMatches, data_path: &PathBuf) -> Result<Vec<BSA>>
                     println!("{:#?}", ba2_file.header);
                 }
             }
-            _ => ()
+            _ => (),
         };
     }
     Ok(bsa_files)

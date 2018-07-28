@@ -48,7 +48,7 @@ mod reader;
 
 // Re-exports
 pub use autodetect::{autodetect_data_path, AutodetectGames};
-pub use ba2::{BA2};
+pub use ba2::BA2;
 pub use bsa::{ArchiveFlags, BSAFile, BSAHeader, FileFlags, Version, BSA};
 pub use reader::TESReader;
 
