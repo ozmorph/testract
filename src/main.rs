@@ -23,7 +23,7 @@ fn parse_bsas(matches: &ArgMatches, data_path: &PathBuf) -> Result<Vec<BSA>> {
         let dir_entry = dir_entry?;
         let file_path = dir_entry.path();
         let is_bsa = |file_path: &PathBuf| match file_path.extension() {
-            Some(extension) => extension == "bsa",
+            Some(extension) => extension == "bsa" || extension == "ba2",
             None => false,
         };
         if is_bsa(&file_path) {

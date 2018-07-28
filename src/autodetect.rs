@@ -9,6 +9,7 @@ arg_enum!{
     /// Game variants that are supported by testract for autodetection of the folder
     #[derive(Debug)]
     pub enum AutodetectGames {
+        FALLOUT4,
         FALLOUTNV,
         OBLIVION,
         SKYRIM,
@@ -22,6 +23,7 @@ pub fn autodetect_data_path(game: &AutodetectGames) -> Result<PathBuf> {
     let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
     let subkey_root = Path::new("SOFTWARE\\WOW6432Node\\Bethesda Softworks");
     let subkey = match game {
+        AutodetectGames::FALLOUT4 => Path::new("Fallout4"),
         AutodetectGames::FALLOUTNV => Path::new("falloutnv"),
         AutodetectGames::OBLIVION => Path::new("oblivion"),
         AutodetectGames::SKYRIM => Path::new("skyrim"),
