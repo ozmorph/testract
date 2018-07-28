@@ -35,7 +35,6 @@ impl BSA {
         match magic_str.as_ref() {
             "BSA\0" => oblivion::parse_bsa(path, &mut reader),
             "\x00\x01\x00\x00" => morrowind::parse_bsa(path, &mut reader),
-            "BTDX" => unimplemented!("Fallout 4 BA2 archives aren't yet supported"),
             _ => unimplemented!("Unknown file id parsed"),
         }
     }

@@ -15,25 +15,30 @@ use std::path::{Path, PathBuf};
 use clap::{App, Arg, ArgGroup, ArgMatches};
 use failure::ResultExt;
 
-use testract::{autodetect_data_path, AutodetectGames, BSAFile, Result, TESReader, BSA};
+use testract::{autodetect_data_path, AutodetectGames, BSAFile, Result, TESReader, BSA, BA2};
 
-fn parse_bsas(matches: &ArgMatches, data_path: &PathBuf) -> Result<Vec<BSA>> {
+fn parse_archives(matches: &ArgMatches, data_path: &PathBuf) -> Result<Vec<BSA>> {
     let mut bsa_files: Vec<BSA> = Vec::new();
     for dir_entry in data_path.read_dir()? {
-        let dir_entry = dir_entry?;
-        let file_path = dir_entry.path();
-        let is_bsa = |file_path: &PathBuf| match file_path.extension() {
-            Some(extension) => extension == "bsa" || extension == "ba2",
-            None => false,
-        };
-        if is_bsa(&file_path) {
-            println!("Parsing {:#?}", file_path);
-            let bsa_file = BSA::from_file(file_path)?;
-            if matches.is_present("header") {
-                println!("{:#?}", bsa_file.header);
+        let file_path = dir_entry?.path();
+        match file_path.extension().and_then(OsStr::to_str) {
+            Some("bsa") => {
+                println!("Parsing {:#?}", file_path);
+                let bsa_file = BSA::from_file(file_path)?;
+                if matches.is_present("header") {
+                    println!("{:#?}", bsa_file.header);
+                }
+                bsa_files.push(bsa_file);
             }
-            bsa_files.push(bsa_file);
-        }
+            Some("ba2") => {
+                println!("Parsing {:#?}", file_path);
+                let ba2_file = BA2::from_file(file_path)?;
+                if matches.is_present("header") {
+                    println!("{:#?}", ba2_file.header);
+                }
+            }
+            _ => ()
+        };
     }
     Ok(bsa_files)
 }
@@ -74,7 +79,7 @@ fn run() -> Result<()> {
             "-h, --header 'The header of each BSA file will be printed'",
         ))
         .arg(
-            Arg::from_usage("-e, --extension [EXT] 'A list of file extensions to find (e.g. \'-e png,nif,wav\')'")
+            Arg::from_usage("-e, --extensions [EXT] 'A list of file extensions to find (e.g. \'-e png,nif,wav\')'")
                 .use_delimiter(true)
                 .multiple(true),
         )
@@ -101,12 +106,12 @@ fn run() -> Result<()> {
         Path::new("")
     };
 
-    let bsa_files = parse_bsas(&matches, &data_path)?;
+    let bsa_files = parse_archives(&matches, &data_path)?;
 
     // we only iterate over the files in the bsas if the user requested them
     let all_flag = matches.is_present("all");
-    if all_flag || matches.is_present("extension") {
-        let extensions: Vec<&str> = matches.values_of("extension").unwrap().collect();
+    if all_flag || matches.is_present("extensions") {
+        let extensions: Vec<&str> = matches.values_of("extensions").unwrap().collect();
         for bsa_file in &bsa_files {
             for (file_name, file) in &bsa_file.file_hashmap {
                 match file_name.extension().and_then(OsStr::to_str) {

@@ -7,7 +7,7 @@ use twox_hash::XxHash;
 
 pub type FileMap = HashMap<PathBuf, BSAFile, BuildHasherDefault<XxHash>>;
 
-/// Main structure containing information parsed from a BSA/BA2 file
+/// Main structure containing information parsed from a BSA file
 pub struct BSA {
     /// Path on disk to this BSA file
     pub path: PathBuf,
