@@ -1,4 +1,3 @@
-#[macro_use]
 extern crate failure;
 
 #[macro_use]
@@ -7,18 +6,23 @@ extern crate clap;
 extern crate testract;
 
 use std::ffi::OsStr;
-use std::fs;
-use std::fs::File;
-use std::io::Write;
 use std::path::{Path, PathBuf};
 
 use clap::{App, Arg, ArgGroup, ArgMatches};
 use failure::ResultExt;
 
-use testract::{autodetect_data_path, AutodetectGames, BA2, BSAFile, Result, TESReader, BSA};
+use testract::{BA2, ExtensionSet, Result, BSA};
+use testract::autodetect::*;
 
-fn parse_archives(matches: &ArgMatches, data_path: &PathBuf) -> Result<Vec<BSA>> {
-    let mut bsa_files: Vec<BSA> = Vec::new();
+fn parse_archives(matches: &ArgMatches, data_path: &PathBuf, output_dir: &Path) -> Result<()> {
+    let extension_set = if matches.is_present("all") {
+        ExtensionSet::All
+    } else if matches.is_present("extensions") {
+        ExtensionSet::List(matches.values_of("extensions").unwrap().collect())
+    } else {
+        ExtensionSet::None
+    };
+
     for dir_entry in data_path.read_dir()? {
         let file_path = dir_entry?.path();
         match file_path.extension().and_then(OsStr::to_str) {
@@ -28,7 +32,7 @@ fn parse_archives(matches: &ArgMatches, data_path: &PathBuf) -> Result<Vec<BSA>>
                 if matches.is_present("header") {
                     println!("{:#?}", bsa_file.header);
                 }
-                bsa_files.push(bsa_file);
+                bsa_file.extract_file_set(&extension_set, output_dir)?
             }
             Some("ba2") => {
                 println!("Parsing {:#?}", file_path);
@@ -40,18 +44,6 @@ fn parse_archives(matches: &ArgMatches, data_path: &PathBuf) -> Result<Vec<BSA>>
             _ => (),
         };
     }
-    Ok(bsa_files)
-}
-
-fn dump_file(output_dir: &Path, file_name: &Path, file: &BSAFile, bsa_file: &BSA, bsa_path: &Path) -> Result<()> {
-    let file_path = output_dir.join(file_name);
-    let mut reader = TESReader::from_file(bsa_path)?;
-    let data = bsa_file.extract_via_file(&mut reader, file)?;
-    fs::create_dir_all(file_path
-        .parent()
-        .ok_or_else(|| format_err!("{:#?} has no parent dir", file_path))?)?;
-    let mut file_handle = File::create(&file_path)?;
-    file_handle.write_all(&data)?;
     Ok(())
 }
 
@@ -62,7 +54,7 @@ fn run() -> Result<()> {
         .about(crate_description!())
         .arg(
             Arg::from_usage("-g, --game [GAME] 'The game to autodetect files for'")
-                .possible_values(&AutodetectGames::variants())
+                .possible_values(&["fallout4", "falloutnv", "oblivion", "skyrim", "skyrimse"])
                 .case_insensitive(true),
         )
         .arg(
@@ -93,8 +85,8 @@ fn run() -> Result<()> {
         .get_matches();
 
     let data_path = if matches.is_present("game") {
-        let game = value_t_or_exit!(matches.value_of("game"), AutodetectGames);
-        autodetect_data_path(&game).context(format!("Unable to detect the data path for {:#?}", game))?
+        let game_name = value_t_or_exit!(matches.value_of("game"), String);
+        autodetect_data_path(&game_name).context(format!("Unable to detect the data path for {}", game_name))?
     } else {
         let directory = value_t_or_exit!(matches.value_of("directory"), String);
         PathBuf::from(directory)
@@ -106,26 +98,7 @@ fn run() -> Result<()> {
         Path::new("")
     };
 
-    let bsa_files = parse_archives(&matches, &data_path)?;
-
-    // we only iterate over the files in the bsas if the user requested them
-    let all_flag = matches.is_present("all");
-    if all_flag || matches.is_present("extensions") {
-        let extensions: Vec<&str> = matches.values_of("extensions").unwrap().collect();
-        for bsa_file in &bsa_files {
-            for (file_name, file) in &bsa_file.file_hashmap {
-                match file_name.extension().and_then(OsStr::to_str) {
-                    Some(extension) if all_flag || extensions.contains(&extension) => {
-                        println!("{:#?}", file_name);
-                        if matches.is_present("output") {
-                            dump_file(&output_dir, &file_name, &file, &bsa_file, &bsa_file.path)?
-                        }
-                    }
-                    _ => (),
-                }
-            }
-        }
-    }
+    parse_archives(&matches, &data_path, &output_dir)?;
 
     println!("All done. Thanks for using testract!");
 

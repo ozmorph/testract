@@ -1,4 +1,7 @@
-use std::io::{Read, Seek, SeekFrom};
+use std::ffi::OsStr;
+use std::fs;
+use std::fs::File;
+use std::io::{Read, Seek, SeekFrom, Write};
 use std::path::{Path, PathBuf};
 
 use byteorder::{ByteOrder, LittleEndian};
@@ -11,7 +14,7 @@ mod oblivion;
 mod types;
 
 use reader::{latin1_to_string, TESFile, TESReader};
-use Result;
+use {ExtensionSet, Result};
 
 // re-export only types that can be accessed from the main BSA structure
 pub use self::types::{ArchiveFlags, BSAFile, BSAHeader, FileFlags, Version, BSA};
@@ -37,6 +40,41 @@ impl BSA {
             "\x00\x01\x00\x00" => morrowind::parse_bsa(path, &mut reader),
             _ => unimplemented!("Unknown file id parsed"),
         }
+    }
+
+    fn dump_file(&self, output_dir: &Path, file_name: &Path, file: &BSAFile) -> Result<()> {
+        let file_path = output_dir.join(file_name);
+        let mut reader = TESReader::from_file(&self.path)?;
+        let data = self.extract_via_file(&mut reader, file)?;
+        fs::create_dir_all(file_path
+            .parent()
+            .ok_or_else(|| format_err!("{:#?} has no parent dir", file_path))?)?;
+        let mut file_handle = File::create(&file_path)?;
+        file_handle.write_all(&data)?;
+        Ok(())
+    }
+
+    /// Given a set of extensions
+    pub fn extract_file_set(&self, extension_set: &ExtensionSet, output_dir: &Path) -> Result<()> {
+        if *extension_set == ExtensionSet::None {
+            return Ok(());
+        }
+
+        for (file_name, file) in &self.file_hashmap {
+            if *extension_set != ExtensionSet::All {
+                if let Some(extension) = file_name.extension().and_then(OsStr::to_str) {
+                    if !extension_set.is_match(&extension) {
+                        continue;
+                    }
+                }
+            }
+
+            println!("{:#?}", file_name);
+            if output_dir != Path::new("") {
+                self.dump_file(&output_dir, &file_name, &file)?
+            }
+        }
+        Ok(())
     }
 
     /// Given a file path, extracts the file content from the BSA
