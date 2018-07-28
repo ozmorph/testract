@@ -31,7 +31,9 @@ pub fn parse_ba2(path: PathBuf, reader: &mut TESFile) -> Result<BA2> {
     reader.seek(SeekFrom::Start(header.name_table_offset))?;
     let mut name_vec: Vec<PathBuf> = Vec::with_capacity(header.file_count);
     for _ in 0..header.file_count {
-        let file_name = reader.parse_long_bstring().context("Can't parse a Fallout 4 file path")?;
+        let file_name = reader
+            .parse_long_bstring()
+            .context("Can't parse a Fallout 4 file path")?;
         name_vec.push(PathBuf::from(file_name));
     }
 
@@ -40,9 +42,7 @@ pub fn parse_ba2(path: PathBuf, reader: &mut TESFile) -> Result<BA2> {
 
     // Collect metadata about all of the files in the archive
     let files: Vec<BA2File> = match header.file_type {
-        BA2Type::General => {
-            reader.parse_exact(GENERAL_FILE_LEN * header.file_count, fo4_general_files_parser)?
-        }
+        BA2Type::General => reader.parse_exact(GENERAL_FILE_LEN * header.file_count, fo4_general_files_parser)?,
         BA2Type::Textures => {
             let mut files: Vec<BA2File> = Vec::with_capacity(header.file_count);
             for _ in 0..header.file_count {
@@ -104,7 +104,7 @@ named!(fo4_header_parser<&[u8], BA2Header>,
 );
 
 /// Parses all of the file metadata for a general .ba2 archive
-/// 
+///
 /// Encoded format for non-textures
 /// ```
 /// ------------------------
