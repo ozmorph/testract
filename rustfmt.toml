@@ -1,1 +1,28 @@
+# the width at which comments are line wrapped
+comment_width = 120
+
+# comments are wrapped at 120 characters
+wrap_comments = true
+
+# this will format string literals so that they don't exceed the maximum width
+format_strings = true
+
+# it's 2018, 120 should be the minimum
 max_width = 120
+
+# converts any use of /* */ to //
+normalize_comments = true
+
+# `type` and `const` are put first, then macros and methods
+reorder_impl_items = true
+
+# allows struct fields to be aligned with eachother (looks much more readable)
+struct_field_align_threshold = 50
+
+# if variables are named the same as structure members, use the shorthand when initializing
+use_field_init_shorthand = true
+
+# replaces try! with ? (try will be deprecated soon anyways)
+use_try_shorthand = true
+
+unstable_features = true

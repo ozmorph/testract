@@ -1,4 +1,5 @@
-// Copyright Notice:   The Elder Scrolls, Morrowind, Oblivion, Skyrim, and Fallout are registered trademarks or trademarks of ZeniMax Media Inc.
+// Copyright Notice:   The Elder Scrolls, Morrowind, Oblivion, Skyrim, and Fallout are registered trademarks or
+// trademarks of ZeniMax Media Inc.
 //
 //! Morrowind-style BSA archive bitflag, enum, and struct definitions and parsing functions
 //!
@@ -24,7 +25,7 @@ use failure::ResultExt;
 use nom::le_u32;
 
 // top-level imports
-use archive::{FileMap};
+use archive::FileMap;
 use bsa::BSAArchive;
 use reader::TESFile;
 use {Compression, Result};
@@ -65,10 +66,10 @@ pub fn parse_bsa(path: PathBuf, reader: &mut TESFile) -> Result<BSAArchive> {
 
     // Convert the header to a BSA header
     let bsa_header = BSAHeader {
-        version: Version::MORROWIND,
+        version:       Version::MORROWIND,
         archive_flags: ArchiveFlags::empty(),
-        file_flags: FileFlags::empty(),
-        file_count: header.file_count,
+        file_flags:    FileFlags::empty(),
+        file_count:    header.file_count,
     };
 
     Ok(BSAArchive {
@@ -78,7 +79,11 @@ pub fn parse_bsa(path: PathBuf, reader: &mut TESFile) -> Result<BSAArchive> {
     })
 }
 
-fn create_file_hashmap(header: &MWBSAHeader, file_records: Vec<MWFileRecord>, file_names: Vec<String>) -> FileMap<BSAFile> {
+fn create_file_hashmap(
+    header: &MWBSAHeader,
+    file_records: Vec<MWFileRecord>,
+    file_names: Vec<String>,
+) -> FileMap<BSAFile> {
     // Zips the vector of file names up with the previous iterator
     let file_record_iter = file_records.into_iter().zip(file_names);
 
@@ -89,10 +94,10 @@ fn create_file_hashmap(header: &MWBSAHeader, file_records: Vec<MWFileRecord>, fi
     let mut file_hashmap: FileMap<BSAFile> = Default::default();
     for (file_record, file_name) in file_record_iter {
         let bsa_file = BSAFile {
-            has_name:       false,
-            compression:    Compression::None,
-            size:           file_record.size,
-            offset:         file_data_offset + file_record.offset,
+            has_name:    false,
+            compression: Compression::None,
+            size:        file_record.size,
+            offset:      file_data_offset + file_record.offset,
         };
         file_hashmap.insert(PathBuf::from(file_name), bsa_file);
     }

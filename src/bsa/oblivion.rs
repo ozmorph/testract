@@ -1,4 +1,5 @@
-// Copyright Notice:   The Elder Scrolls, Morrowind, Oblivion, Skyrim, and Fallout are registered trademarks or trademarks of ZeniMax Media Inc.
+// Copyright Notice:   The Elder Scrolls, Morrowind, Oblivion, Skyrim, and Fallout are registered trademarks or
+// trademarks of ZeniMax Media Inc.
 //
 //! Oblivion-style BSA archive bitflag, enum, and struct definitions and parsing functions
 //!
@@ -67,10 +68,10 @@ pub fn parse_bsa(path: PathBuf, mut reader: &mut TESFile) -> Result<BSAArchive> 
 
     // Convert the header to a BSA header
     let bsa_header = BSAHeader {
-        version: header.version,
+        version:       header.version,
         archive_flags: header.archive_flags,
-        file_flags: header.file_flags,
-        file_count: header.file_count,
+        file_flags:    header.file_flags,
+        file_count:    header.file_count,
     };
 
     Ok(BSAArchive {
@@ -116,7 +117,11 @@ fn read_file_record_blocks(
     Ok(file_record_blocks)
 }
 
-fn create_file_hashmap(header: &OBBSAHeader, folders: Vec<OBFolderRecord>, file_names: Vec<String>) -> FileMap<BSAFile> {
+fn create_file_hashmap(
+    header: &OBBSAHeader,
+    folders: Vec<OBFolderRecord>,
+    file_names: Vec<String>,
+) -> FileMap<BSAFile> {
     // Converts the vector of BSAFolderRecords into an iterator of (folder_name, file_record) to be more easily consumed
     let folder_file_iter = folders
         .into_iter()
@@ -128,12 +133,11 @@ fn create_file_hashmap(header: &OBBSAHeader, folders: Vec<OBFolderRecord>, file_
     // Iterates over each file and inserts it into a new hashmap
     let mut file_hashmap: FileMap<BSAFile> = Default::default();
     for (file_name, (folder_name, file_record)) in folder_file_name_iter {
-        
         // Documentation on the Unofficial Elder Scrolls Pages (UESP) wiki seems to be wrong.
         // Even if the EMBED_FILE_NAMES flag is set on the archive, the file names are not found
         // in the individual file blocks. Therefore we always say false for Oblivion BSAs
-        let has_name = header.archive_flags.contains(ArchiveFlags::EMBED_FILE_NAMES)
-            && header.version != Version::OBLIVION;
+        let has_name =
+            header.archive_flags.contains(ArchiveFlags::EMBED_FILE_NAMES) && header.version != Version::OBLIVION;
 
         let mut is_compressed = header.archive_flags.contains(ArchiveFlags::COMPRESSED_ARCHIVE);
         is_compressed = if !file_record.uses_default_compression {
@@ -141,7 +145,7 @@ fn create_file_hashmap(header: &OBBSAHeader, folders: Vec<OBFolderRecord>, file_
         } else {
             is_compressed
         };
-        
+
         // For Skyrim Special Edition, Bethesda replaced Zlib compression with LZ4 compression.
         // Personal opinion: this is probably because LZ4 is multithread capable and thus lended
         // itself well to the newer console generation that has multiple cores to help load assets
@@ -155,7 +159,7 @@ fn create_file_hashmap(header: &OBBSAHeader, folders: Vec<OBFolderRecord>, file_
         } else {
             Compression::None
         };
-        
+
         let bsa_file = BSAFile {
             has_name,
             compression,

@@ -12,7 +12,7 @@ use reader::{latin1_to_string, TESFile, TESReader};
 use {Compression, Result};
 
 // reexports for documentation
-pub use self::types::{BSAHeader, BSAFile};
+pub use self::types::{BSAFile, BSAHeader};
 
 pub type BSAArchive = Archive<BSAHeader, BSAFile>;
 
@@ -26,9 +26,9 @@ pub fn from_file(path: PathBuf) -> Result<BSAArchive> {
         .context("Unable to read BSA file identifier")?;
     let magic_str = latin1_to_string(&file_magic);
     match magic_str.as_ref() {
-        "BSA\0"             => oblivion::parse_bsa(path, &mut reader),
-        "\x00\x01\x00\x00"  => morrowind::parse_bsa(path, &mut reader),
-        _                   => unimplemented!("Unknown file id parsed"),
+        "BSA\0" => oblivion::parse_bsa(path, &mut reader),
+        "\x00\x01\x00\x00" => morrowind::parse_bsa(path, &mut reader),
+        _ => unimplemented!("Unknown file id parsed"),
     }
 }
 
@@ -42,7 +42,8 @@ impl Extract for BSAFile {
         if self.compression != Compression::None {
             if self.has_name {
                 let compressed_slice_offset = (file_block[0] + 1) as usize;
-                self.compression.decompress_buffer(&file_block[compressed_slice_offset..])
+                self.compression
+                    .decompress_buffer(&file_block[compressed_slice_offset..])
             } else {
                 self.compression.decompress_buffer(&file_block)
             }

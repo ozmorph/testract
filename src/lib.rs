@@ -1,4 +1,5 @@
-// Copyright Notice:   The Elder Scrolls, Morrowind, Oblivion, Skyrim, and Fallout are registered trademarks or trademarks of ZeniMax Media Inc.
+// Copyright Notice:   The Elder Scrolls, Morrowind, Oblivion, Skyrim, and Fallout are registered trademarks or
+// trademarks of ZeniMax Media Inc.
 //
 //! TEStract is a utility for extracting infomation from various Bethesda archives: .bsa, .ba2
 //!
@@ -66,9 +67,11 @@ fn convert_nom_err<P: Debug>(e: Err<P>) -> Error {
 /// Dumps a slice of bytes to the file path made by combining output_dir and file_name
 fn dump_to_file(output_dir: &Path, file_name: &Path, file_data: &[u8]) -> Result<()> {
     let file_path = output_dir.join(file_name);
-    fs::create_dir_all(file_path
-        .parent()
-        .ok_or_else(|| format_err!("{:#?} has no parent dir", file_path))?)?;
+    fs::create_dir_all(
+        file_path
+            .parent()
+            .ok_or_else(|| format_err!("{:#?} has no parent dir", file_path))?,
+    )?;
     let mut file_handle = File::create(&file_path)?;
     file_handle.write_all(file_data)?;
     Ok(())

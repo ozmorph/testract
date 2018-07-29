@@ -1,6 +1,6 @@
 use std::collections::HashMap;
-use std::hash::BuildHasherDefault;
 use std::ffi::OsStr;
+use std::hash::BuildHasherDefault;
 use std::path::{Path, PathBuf};
 
 use twox_hash::XxHash;
@@ -81,7 +81,8 @@ impl<H, F: Extract> Archive<H, F> {
 
     /// Given a file path, extracts the file content from the BSA
     pub fn extract_by_name(&self, reader: &mut TESFile, file_path: &Path) -> Result<Vec<u8>> {
-        let file_record = self.file_hashmap
+        let file_record = self
+            .file_hashmap
             .get(file_path)
             .ok_or_else(|| format_err!("File {:#?} not found", file_path))?;
         file_record.extract(reader)

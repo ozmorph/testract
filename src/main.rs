@@ -11,8 +11,8 @@ use std::path::{Path, PathBuf};
 use clap::{App, Arg, ArgGroup, ArgMatches};
 use failure::ResultExt;
 
-use testract::{ba2, bsa, ExtensionSet, Result};
 use testract::autodetect::*;
+use testract::{ba2, bsa, ExtensionSet, Result};
 
 fn parse_archives(matches: &ArgMatches, data_path: &PathBuf, output_dir: &Path) -> Result<()> {
     let extension_set = if matches.is_present("all") {
