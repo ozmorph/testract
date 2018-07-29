@@ -32,11 +32,11 @@ pub struct BA2TextureHeader {
 #[derive(Debug)]
 pub struct BA2FileChunk {
     /// Offset from the start of the file to this chunk's data
-    pub content_offset: usize,
+    pub content_offset: u64,
     /// Size of contents while zlib compressed (if 0, then the file isn't compressed)
-    pub compressed_size: u32,
+    pub compressed_size: usize,
     /// Size of contents while uncompresed
-    pub uncompressed_size: u32,
+    pub uncompressed_size: usize,
 }
 
 #[derive(Debug)]

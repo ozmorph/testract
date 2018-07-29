@@ -138,9 +138,9 @@ named!(fo4_general_files_parser<&[u8], Vec<BA2File>>,
                         chunks: {
                             let mut chunks = Vec::with_capacity(1);
                             chunks.push(BA2FileChunk {
-                                content_offset: content_offset as usize,
-                                compressed_size,
-                                uncompressed_size,
+                                content_offset,
+                                compressed_size: compressed_size as usize,
+                                uncompressed_size: uncompressed_size as usize,
                             });
                             chunks
                         }
@@ -222,9 +222,9 @@ named!(fo4_texture_chunks_parser<&[u8], Vec<BA2FileChunk>>,
                 _magic: bits!(tag_bits!(u32, 32, 0x0DF0_ADBA)) >>
                 (
                     BA2FileChunk {
-                        content_offset: content_offset as usize,
-                        compressed_size,
-                        uncompressed_size,
+                        content_offset,
+                        compressed_size: compressed_size as usize,
+                        uncompressed_size: uncompressed_size as usize,
                     }
                 )
             )
