@@ -7,10 +7,10 @@ use Result;
 
 /// Attempts to detect where a game is installed by querying the Windows registry
 #[cfg(windows)]
-pub fn autodetect_data_path(game: &String) -> Result<PathBuf> {
+pub fn autodetect_data_path(game: &str) -> Result<PathBuf> {
     let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
     let subkey_root = Path::new("SOFTWARE\\WOW6432Node\\Bethesda Softworks");
-    let subkey = match game.as_ref() {
+    let subkey = match game {
         "fallout4"  => Path::new("Fallout4"),
         "falloutnv" => Path::new("falloutnv"),
         "oblivion"  => Path::new("oblivion"),
