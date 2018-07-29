@@ -1,21 +1,4 @@
-use std::collections::HashMap;
-use std::hash::BuildHasherDefault;
-use std::path::PathBuf;
-
 use nom::le_u32;
-use twox_hash::XxHash;
-
-pub type FileMap = HashMap<PathBuf, BA2File, BuildHasherDefault<XxHash>>;
-
-/// Main structure containing information parsed from a BA2 file
-pub struct BA2 {
-    /// Path on disk to this BA2 file
-    pub path: PathBuf,
-    /// Header containing metadata for the entire file
-    pub header: BA2Header,
-    /// HashMap mapping full file names to FileRecords
-    pub file_hashmap: FileMap,
-}
 
 /// Metadata for the whole archive.
 #[derive(Debug)]

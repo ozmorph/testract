@@ -5,11 +5,13 @@ use failure::ResultExt;
 use nom::{le_u16, le_u32, le_u64, le_u8};
 
 // top-level imports
+use archive::FileMap;
 use reader::TESFile;
 use Result;
 
 // BA2 imports
 use ba2::types::*;
+use ba2::BA2Archive;
 
 /// All BA2 headers are 24 (0x18) bytes
 const HEADER_LEN: usize = 0x18;
@@ -21,7 +23,7 @@ const TEXTURE_HEADER_LEN: usize = 0x18;
 const TEXTURE_CHUNK_LEN: usize = 0x18;
 
 /// Creates a BA2 object
-pub fn parse_ba2(path: PathBuf, reader: &mut TESFile) -> Result<BA2> {
+pub fn parse_ba2(path: PathBuf, reader: &mut TESFile) -> Result<BA2Archive> {
     // Read in the header
     let header = reader
         .parse_exact(HEADER_LEN, fo4_header_parser)
@@ -60,12 +62,12 @@ pub fn parse_ba2(path: PathBuf, reader: &mut TESFile) -> Result<BA2> {
 
     // Create a hashmap mapping file names => file metadata records to quickly grab file data from the BA2
     let file_iter = name_vec.into_iter().zip(files.into_iter());
-    let mut file_hashmap: FileMap = Default::default();
+    let mut file_hashmap: FileMap<BA2File> = Default::default();
     for (file_name, file) in file_iter {
         file_hashmap.insert(file_name, file);
     }
 
-    Ok(BA2 {
+    Ok(BA2Archive {
         path,
         header,
         file_hashmap,

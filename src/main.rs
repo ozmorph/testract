@@ -40,6 +40,7 @@ fn parse_archives(matches: &ArgMatches, data_path: &PathBuf, output_dir: &Path) 
                 if matches.is_present("header") {
                     println!("{:#?}", ba2_file.header);
                 }
+                ba2_file.extract_by_extension(&extension_set, output_dir)?
             }
             _ => (),
         };
