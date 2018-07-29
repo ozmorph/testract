@@ -23,11 +23,13 @@ use failure::ResultExt;
 use nom::{le_u32, le_u64};
 
 // top-level imports
+use archive::FileMap;
 use reader::TESFile;
-use Result;
+use {Compression, Result};
 
 // bsa imports
 use bsa::types::*;
+use bsa::BSAArchive;
 
 /// All Oblivion-style BSA headers are the same size in serialized form, 32 (0x20), after parsing the file magic
 const SERIALIZED_HEADER_LEN: usize = 0x20;
@@ -39,7 +41,7 @@ const SERIALIZED_OB_FOLDER_RECORD_LEN: usize = 0x10;
 const SERIALIZED_SSE_FOLDER_RECORD_LEN: usize = 0x18;
 
 /// Creates a BSA object
-pub fn parse_bsa(path: PathBuf, mut reader: &mut TESFile) -> Result<BSA> {
+pub fn parse_bsa(path: PathBuf, mut reader: &mut TESFile) -> Result<BSAArchive> {
     // Follows the Oblivion BSA file structure (described at the top of the file)
 
     // Read in the header
@@ -71,7 +73,7 @@ pub fn parse_bsa(path: PathBuf, mut reader: &mut TESFile) -> Result<BSA> {
         file_count: header.file_count,
     };
 
-    Ok(BSA {
+    Ok(BSAArchive {
         path,
         header: bsa_header,
         file_hashmap,
@@ -114,7 +116,7 @@ fn read_file_record_blocks(
     Ok(file_record_blocks)
 }
 
-fn create_file_hashmap(header: &OBBSAHeader, folders: Vec<OBFolderRecord>, file_names: Vec<String>) -> FileMap {
+fn create_file_hashmap(header: &OBBSAHeader, folders: Vec<OBFolderRecord>, file_names: Vec<String>) -> FileMap<BSAFile> {
     // Converts the vector of BSAFolderRecords into an iterator of (folder_name, file_record) to be more easily consumed
     let folder_file_iter = folders
         .into_iter()
@@ -124,16 +126,39 @@ fn create_file_hashmap(header: &OBBSAHeader, folders: Vec<OBFolderRecord>, file_
     let folder_file_name_iter = file_names.into_iter().zip(folder_file_iter);
 
     // Iterates over each file and inserts it into a new hashmap
-    let mut file_hashmap: FileMap = Default::default();
+    let mut file_hashmap: FileMap<BSAFile> = Default::default();
     for (file_name, (folder_name, file_record)) in folder_file_name_iter {
-        let mut compressed = header.archive_flags.contains(ArchiveFlags::COMPRESSED_ARCHIVE);
-        compressed = if !file_record.uses_default_compression {
-            !compressed
+        
+        // Documentation on the Unofficial Elder Scrolls Pages (UESP) wiki seems to be wrong.
+        // Even if the EMBED_FILE_NAMES flag is set on the archive, the file names are not found
+        // in the individual file blocks. Therefore we always say false for Oblivion BSAs
+        let has_name = header.archive_flags.contains(ArchiveFlags::EMBED_FILE_NAMES)
+            && header.version != Version::OBLIVION;
+
+        let mut is_compressed = header.archive_flags.contains(ArchiveFlags::COMPRESSED_ARCHIVE);
+        is_compressed = if !file_record.uses_default_compression {
+            !is_compressed
         } else {
-            compressed
+            is_compressed
         };
+        
+        // For Skyrim Special Edition, Bethesda replaced Zlib compression with LZ4 compression.
+        // Personal opinion: this is probably because LZ4 is multithread capable and thus lended
+        // itself well to the newer console generation that has multiple cores to help load assets
+        // and lower in-game load screens which have plagued console performance in the past
+        let compression = if is_compressed {
+            match header.version {
+                Version::OBLIVION | Version::SKYRIM => Compression::Zlib,
+                Version::SKYRIMSE => Compression::Lz4,
+                _ => Compression::None,
+            }
+        } else {
+            Compression::None
+        };
+        
         let bsa_file = BSAFile {
-            compressed,
+            has_name,
+            compression,
             size: file_record.size,
             offset: file_record.offset,
         };

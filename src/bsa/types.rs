@@ -1,21 +1,6 @@
-use std::collections::HashMap;
-use std::hash::BuildHasherDefault;
-use std::path::PathBuf;
-
 use nom::{le_u16, le_u32};
-use twox_hash::XxHash;
 
-pub type FileMap = HashMap<PathBuf, BSAFile, BuildHasherDefault<XxHash>>;
-
-/// Main structure containing information parsed from a BSA file
-pub struct BSA {
-    /// Path on disk to this BSA file
-    pub path: PathBuf,
-    /// Header containing metadata for the entire file
-    pub header: BSAHeader,
-    /// HashMap mapping full file names to FileRecords
-    pub file_hashmap: FileMap,
-}
+use Compression;
 
 /// Metadata for the whole archive
 #[derive(Debug)]
@@ -33,8 +18,9 @@ pub struct BSAHeader {
 /// Metadata for a single file
 #[derive(Debug)]
 pub struct BSAFile {
+    pub has_name: bool,
     /// Decides whether or not the file is compressed
-    pub compressed: bool,
+    pub compression: Compression,
     /// Size of the file data
     pub size: u32,
     /// Offset from file byte zero to the raw file data

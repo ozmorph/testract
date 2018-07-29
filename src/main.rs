@@ -11,7 +11,7 @@ use std::path::{Path, PathBuf};
 use clap::{App, Arg, ArgGroup, ArgMatches};
 use failure::ResultExt;
 
-use testract::{BA2, ExtensionSet, Result, BSA};
+use testract::{ba2, bsa, ExtensionSet, Result};
 use testract::autodetect::*;
 
 fn parse_archives(matches: &ArgMatches, data_path: &PathBuf, output_dir: &Path) -> Result<()> {
@@ -28,15 +28,15 @@ fn parse_archives(matches: &ArgMatches, data_path: &PathBuf, output_dir: &Path) 
         match file_path.extension().and_then(OsStr::to_str) {
             Some("bsa") => {
                 println!("Parsing {:#?}", file_path);
-                let bsa_file = BSA::from_file(file_path)?;
+                let bsa_file = bsa::from_file(file_path)?;
                 if matches.is_present("header") {
                     println!("{:#?}", bsa_file.header);
                 }
-                bsa_file.extract_file_set(&extension_set, output_dir)?
+                bsa_file.extract_by_extension(&extension_set, output_dir)?
             }
             Some("ba2") => {
                 println!("Parsing {:#?}", file_path);
-                let ba2_file = BA2::from_file(file_path)?;
+                let ba2_file = ba2::from_file(file_path)?;
                 if matches.is_present("header") {
                     println!("{:#?}", ba2_file.header);
                 }
@@ -76,17 +76,17 @@ fn run() -> Result<()> {
                 .multiple(true),
         )
         .arg(Arg::from_usage("-a, --all 'Find all file extensions'"))
-        .group(ArgGroup::with_name("find").args(&["extension", "all"]))
+        .group(ArgGroup::with_name("find").args(&["extensions", "all"]))
         .arg(
             Arg::from_usage(
-                "-o, --output [PATH] 'Folder to output files to (use -o=\'\' or -o\"\" for current directory'",
+                "-o, --output [PATH] 'Folder to output files to (use -o=\'\' or -o\"\" for current directory)'",
             ).requires("find"),
         )
         .get_matches();
 
     let data_path = if matches.is_present("game") {
-        let game_name = value_t_or_exit!(matches.value_of("game"), String);
-        autodetect_data_path(&game_name).context(format!("Unable to detect the data path for {}", game_name))?
+        let game = value_t_or_exit!(matches.value_of("game"), String);
+        autodetect_data_path(&game).context(format!("Unable to detect the data path for {}", game))?
     } else {
         let directory = value_t_or_exit!(matches.value_of("directory"), String);
         PathBuf::from(directory)
