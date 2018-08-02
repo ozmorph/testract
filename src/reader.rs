@@ -8,6 +8,7 @@ use std::io;
 use std::io::{BufRead, BufReader, Read, Seek, SeekFrom};
 use std::path::Path;
 
+use byteorder::{ByteOrder, LittleEndian};
 use failure::ResultExt;
 
 use {convert_nom_err, ParserFn, Result};
@@ -58,6 +59,17 @@ impl<B: BufRead + Seek> TESReader<B> {
         Ok(buffer)
     }
 
+    fn read_string_with_dlen_prefix(&mut self) -> io::Result<Vec<u8>> {
+        // The length of the string is denoted by two bytes
+        let length = self.parse_short()?;
+
+        // Allocate the byte buffer for the full string and read it in
+        let mut buffer: Vec<u8> = vec![0; length as usize];
+        self.read_exact(&mut buffer)?;
+
+        Ok(buffer)
+    }
+
     /// Reads a block of '\0' terminated latin-1 strings and parses them into a vector of UTF8 strings  
     pub fn parse_bstring_block(&mut self, total_length: usize) -> Result<Vec<String>> {
         // Read a bstring block
@@ -83,11 +95,18 @@ impl<B: BufRead + Seek> TESReader<B> {
         Ok(output_type)
     }
 
-    /// Parses a single byte from the underlying buffer.
-    pub fn parse_byte(&mut self) -> io::Result<u8> {
+    /// Parses a byte from the underlying buffer.
+    fn parse_byte(&mut self) -> io::Result<u8> {
         let mut buffer = [0; 1];
         self.read_exact(&mut buffer)?;
         Ok(buffer[0])
+    }
+
+    /// Parses a short from the underlying buffer.
+    fn parse_short(&mut self) -> io::Result<u16> {
+        let mut buffer = [0; 2];
+        self.read_exact(&mut buffer)?;
+        Ok(LittleEndian::read_u16(&buffer))
     }
 
     /// Reads bytes until a '\0' is encountered.
@@ -101,6 +120,12 @@ impl<B: BufRead + Seek> TESReader<B> {
     /// Reads a string prefixed with a byte length. NOT zero terminated.
     pub fn parse_bstring(&mut self) -> io::Result<String> {
         let string_buf = self.read_string_with_len_prefix()?;
+        Ok(latin1_to_string(&string_buf))
+    }
+
+    /// Reads a string prefixed with a short length. NOT zero terminated.
+    pub fn parse_long_bstring(&mut self) -> io::Result<String> {
+        let string_buf = self.read_string_with_dlen_prefix()?;
         Ok(latin1_to_string(&string_buf))
     }
 
