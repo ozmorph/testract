@@ -34,12 +34,14 @@ impl Extract for BA2File {
                 } else {
                     general_file.compressed_size
                 };
-                let mut file_block = vec![0; buffer_len + 4];
-                reader.read_exact(&mut file_block[4..])?;
-                file_block.write_u64::<LittleEndian>(general_file.uncompressed_size as u64)?;
                 if general_file.compressed_size != 0 {
+                    let mut file_block = vec![0; buffer_len + 4];
+                    reader.read_exact(&mut file_block[4..])?;
+                    file_block.write_u64::<LittleEndian>(general_file.uncompressed_size as u64)?;
                     Compression::Zlib.decompress_buffer(&file_block)
                 } else {
+                    let mut file_block = vec![0; buffer_len];
+                    reader.read_exact(&mut file_block)?;
                     Ok(file_block)
                 }
             }
