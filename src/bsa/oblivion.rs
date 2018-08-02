@@ -93,8 +93,7 @@ fn read_file_record_blocks(
             .parse_exact(
                 SERIALIZED_SSE_FOLDER_RECORD_LEN * num_folders,
                 sse_folder_metadata_parser,
-            )
-            .context("Failed parsing the SSE-style folder metadata block")?
+            ).context("Failed parsing the SSE-style folder metadata block")?
     } else {
         reader
             .parse_exact(SERIALIZED_OB_FOLDER_RECORD_LEN * num_folders, ob_folder_metadata_parser)
