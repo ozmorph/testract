@@ -32,33 +32,19 @@ pub struct BSAFile {
 pub enum Version {
     /// Morrowind BSAs don't map to a version, so 0x0 was chosen at random
     MORROWIND,
-    /// Fallout 4 files (.ba2) (0x01)
-    FALLOUT4,
     /// Oblivion files (0x67)
     OBLIVION,
     /// Fallout 3 | Fallout New Vegas | Skyrim files (0x68)
     SKYRIM,
     /// Skyrim Special Edition files (0x69)
     SKYRIMSE,
-    /// Unsupported versions
-    UNKNOWN,
 }
 
-impl From<u32> for Version {
-    fn from(integer: u32) -> Self {
-        use self::Version::*;
-        match integer {
-            0x0 => MORROWIND,
-            0x1 => FALLOUT4,
-            0x67 => OBLIVION,
-            0x68 => SKYRIM,
-            0x69 => SKYRIMSE,
-            _ => UNKNOWN,
-        }
-    }
-}
-
-named!(pub parse_version<Version>, map!(le_u32, Version::from));
+named!(pub version_parser<Version>, switch!(le_u32,
+    0x67 => value!(Version::OBLIVION)  |
+    0x68 => value!(Version::SKYRIM)    |
+    0x69 => value!(Version::SKYRIMSE)
+));
 
 bitflags! {
     /// Flags used to indicate how the BSA file should be parsed and/or interpreted

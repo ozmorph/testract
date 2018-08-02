@@ -208,8 +208,8 @@ struct OBBSAHeader {
 named!(ob_bsa_header_parser<&[u8], OBBSAHeader>,
     add_return_error!(ErrorKind::Custom(100),
         do_parse!(
-            version:             parse_version >>
-            _offset:                   take!(4) >>
+            version:            version_parser >>
+            _offset:                  take!(4) >>
             archive_flags: parse_archive_flags >>
             folder_count:               le_u32 >>
             file_count:                 le_u32 >>
