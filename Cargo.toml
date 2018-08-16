@@ -39,7 +39,7 @@ default-features = false
 features = ["zlib"]
 
 [target.'cfg(windows)'.dependencies]
-winreg = "0.5"
+winreg = "0.5.1"
 
 [profile.release]
 lto = false
