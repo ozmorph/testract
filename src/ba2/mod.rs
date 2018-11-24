@@ -29,7 +29,7 @@ impl Extract for BA2File {
             None => {
                 let general_file = &self.chunks[0];
                 reader.seek(SeekFrom::Start(general_file.content_offset))?;
-                let mut buffer_len = if general_file.compressed_size == 0 {
+                let buffer_len = if general_file.compressed_size == 0 {
                     general_file.uncompressed_size
                 } else {
                     general_file.compressed_size
