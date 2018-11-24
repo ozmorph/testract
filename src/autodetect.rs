@@ -7,7 +7,7 @@ use failure::ResultExt;
 #[cfg(windows)]
 use winreg::{enums::HKEY_LOCAL_MACHINE, RegKey};
 
-use Result;
+use crate::Result;
 
 /// Attempts to detect where a game is installed by querying the Windows registry
 #[cfg(windows)]

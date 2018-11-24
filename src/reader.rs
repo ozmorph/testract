@@ -11,7 +11,7 @@ use std::path::Path;
 use byteorder::{ByteOrder, LittleEndian};
 use failure::ResultExt;
 
-use {convert_nom_err, ParserFn, Result};
+use crate::{convert_nom_err, ParserFn, Result};
 
 /// The files contain ISO-8859-1 encoded strings. This function attempts to create a UTF8 string by mapping each
 /// individual byte to a char primitive which are always interpreted by Rust as UTF8 (up to 4 bytes). As a result,

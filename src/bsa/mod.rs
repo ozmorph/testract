@@ -7,9 +7,9 @@ mod morrowind;
 mod oblivion;
 mod types;
 
-use archive::{Archive, Extract};
-use reader::{latin1_to_string, TESFile, TESReader};
-use {Compression, Result};
+use crate::archive::{Archive, Extract};
+use crate::reader::{latin1_to_string, TESFile, TESReader};
+use crate::{Compression, Result};
 
 // reexports for documentation
 pub use self::types::{BSAFile, BSAHeader};

@@ -6,9 +6,9 @@ use byteorder::{LittleEndian, WriteBytesExt};
 mod fallout4;
 mod types;
 
-use archive::{Archive, Extract};
-use reader::{TESFile, TESReader};
-use {Compression, Result};
+use crate::archive::{Archive, Extract};
+use crate::reader::{TESFile, TESReader};
+use crate::{Compression, Result};
 
 // re-export only types that can be accessed from the main BSA structure
 pub use self::types::{BA2File, BA2Header};

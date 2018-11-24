@@ -1,6 +1,6 @@
 use nom::{le_u16, le_u32};
 
-use Compression;
+use crate::Compression;
 
 /// Metadata for the whole archive
 #[derive(Debug)]

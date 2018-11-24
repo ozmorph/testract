@@ -25,13 +25,13 @@ use failure::ResultExt;
 use nom::le_u32;
 
 // top-level imports
-use archive::FileMap;
-use bsa::BSAArchive;
-use reader::TESFile;
-use {Compression, Result};
+use crate::archive::FileMap;
+use crate::bsa::BSAArchive;
+use crate::reader::TESFile;
+use crate::{Compression, Result};
 
 // bsa imports
-use bsa::types::{ArchiveFlags, BSAFile, BSAHeader, FileFlags, Version};
+use crate::bsa::types::{ArchiveFlags, BSAFile, BSAHeader, FileFlags, Version};
 
 /// All Morrowind-style BSA headers are 8 (0x8) bytes after parsing the file magic
 const SERIALIZED_HEADER_LEN: usize = 0x8;

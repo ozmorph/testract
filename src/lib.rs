@@ -52,7 +52,7 @@ pub mod bsa;
 mod reader;
 
 // Re-exports
-pub use archive::ExtensionSet;
+pub use crate::archive::ExtensionSet;
 
 /// Result alias for wrapping the `failure::Error` type
 pub type Result<T> = ::std::result::Result<T, Error>;

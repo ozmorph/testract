@@ -5,13 +5,13 @@ use failure::ResultExt;
 use nom::{le_u16, le_u32, le_u64, le_u8};
 
 // top-level imports
-use archive::FileMap;
-use reader::TESFile;
-use Result;
+use crate::archive::FileMap;
+use crate::reader::TESFile;
+use crate::Result;
 
 // BA2 imports
-use ba2::types::*;
-use ba2::BA2Archive;
+use crate::ba2::types::*;
+use crate::ba2::BA2Archive;
 
 /// All BA2 headers are 24 (0x18) bytes
 const HEADER_LEN: usize = 0x18;

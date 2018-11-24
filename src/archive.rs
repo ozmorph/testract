@@ -5,8 +5,8 @@ use std::path::{Path, PathBuf};
 
 use twox_hash::XxHash;
 
-use reader::{TESFile, TESReader};
-use {dump_to_file, Result};
+use crate::reader::{TESFile, TESReader};
+use crate::{dump_to_file, Result};
 
 pub type FileMap<F> = HashMap<PathBuf, F, BuildHasherDefault<XxHash>>;
 
@@ -24,7 +24,7 @@ pub enum ExtensionSet<'a> {
 impl<'a> ExtensionSet<'a> {
     /// Determines if a given file extension has a matches within the set
     pub fn is_match(&self, file_extension: &str) -> bool {
-        use archive::ExtensionSet::*;
+        use crate::archive::ExtensionSet::*;
         match self {
             None => false,
             All => true,

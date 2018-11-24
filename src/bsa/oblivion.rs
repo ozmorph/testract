@@ -24,13 +24,13 @@ use failure::ResultExt;
 use nom::{le_u32, le_u64};
 
 // top-level imports
-use archive::FileMap;
-use reader::TESFile;
-use {Compression, Result};
+use crate::archive::FileMap;
+use crate::reader::TESFile;
+use crate::{Compression, Result};
 
 // bsa imports
-use bsa::types::*;
-use bsa::BSAArchive;
+use crate::bsa::types::*;
+use crate::bsa::BSAArchive;
 
 /// All Oblivion-style BSA headers are the same size in serialized form, 32 (0x20), after parsing the file magic
 const SERIALIZED_HEADER_LEN: usize = 0x20;
