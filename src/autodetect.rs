@@ -1,6 +1,10 @@
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
+#[cfg(windows)]
+use std::path::Path;
 
+#[cfg(windows)]
 use failure::ResultExt;
+#[cfg(windows)]
 use winreg::{enums::HKEY_LOCAL_MACHINE, RegKey};
 
 use Result;
@@ -26,8 +30,6 @@ pub fn autodetect_data_path(game: &str) -> Result<PathBuf> {
 }
 
 #[cfg(not(windows))]
-pub fn autodetect_data_path(game: &Game) -> Result<PathBuf> {
-    Err(format_err!(
-        "Data path autodetection is not supported for your platform"
-    ));
+pub fn autodetect_data_path(_game: &str) -> Result<PathBuf> {
+    Err(format_err!("Data path autodetection is not supported for your platform"))
 }
