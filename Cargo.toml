@@ -13,10 +13,10 @@ publish = false
 edition = "2018"
 
 [dependencies]
-bitflags    = "1.0.3"
-byteorder   = "1.2.3"
-lz4         = "1.22.0"
-nom         = "4.0.0"
+bitflags    = "1.0.4"
+byteorder   = "1.2.7"
+lz4         = "1.23.1"
+nom         = "4.1.1"
 twox-hash   = "1.1.1"
 
 [dependencies.clap]
@@ -26,21 +26,21 @@ default-features = false
 features = ["suggestions"]
 
 [dependencies.failure]
-version = "0.1.1"
+version = "0.1.3"
 # the default-features includes failure_derive which isn't used
 # and pulls in a bunch of dependencies on its own
 default-features = false
 features = ["std"]
 
 [dependencies.flate2]
-version = "1.0.1"
+version = "1.0.6"
 # zlib is used rather than the default miniz implementation because Bethesda
 # uses a weird encoding format that miniz does not appear to support and zlib does 
 default-features = false
 features = ["zlib"]
 
 [target.'cfg(windows)'.dependencies]
-winreg = "0.5.1"
+winreg = "0.6.0"
 
 [profile.release]
 lto = false

@@ -110,7 +110,7 @@ fn run() -> Result<()> {
 fn main() {
     if let Err(e) = run() {
         eprint!("error: {}", e);
-        let mut e = e.cause();
+        let mut e = e.as_fail();
         while let Some(cause) = e.cause() {
             eprint!(", {}", cause);
             e = cause;
