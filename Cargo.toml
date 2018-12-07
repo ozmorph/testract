@@ -10,6 +10,7 @@ license = "MIT"
 keywords = ["parser", "game", "encoding", "parsing"]
 categories = ["parsing", "parser-implementations", "games"]
 publish = false
+edition = "2018"
 
 [dependencies]
 bitflags    = "1.0.3"

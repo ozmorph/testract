@@ -59,7 +59,7 @@ pub type Result<T> = ::std::result::Result<T, Error>;
 
 type ParserFn<O> = fn(input: &[u8]) -> IResult<&[u8], O>;
 
-#[allow(needless_pass_by_value)]
+#[allow(clippy::needless_pass_by_value)]
 fn convert_nom_err<P: Debug>(e: Err<P>) -> Error {
     err_msg(format!("Failed to parse: {}", e))
 }
