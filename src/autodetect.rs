@@ -1,6 +1,6 @@
-use std::path::PathBuf;
 #[cfg(windows)]
 use std::path::Path;
+use std::path::PathBuf;
 
 #[cfg(windows)]
 use failure::ResultExt;
@@ -31,5 +31,7 @@ pub fn autodetect_data_path(game: &str) -> Result<PathBuf> {
 
 #[cfg(not(windows))]
 pub fn autodetect_data_path(_game: &str) -> Result<PathBuf> {
-    Err(format_err!("Data path autodetection is not supported for your platform"))
+    Err(format_err!(
+        "Data path autodetection is not supported for your platform"
+    ))
 }

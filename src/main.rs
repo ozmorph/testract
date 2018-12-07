@@ -57,27 +57,34 @@ fn run() -> Result<()> {
             Arg::from_usage("-g, --game [GAME] 'The game to autodetect files for'")
                 .possible_values(&["fallout4", "falloutnv", "oblivion", "skyrim", "skyrimse"])
                 .case_insensitive(true),
-        ).arg(
+        )
+        .arg(
             Arg::from_usage("-d, --directory [PATH] 'Path to search for files in (not recursive)'").long_help(
                 "'Data folder path (e.g. \'C:\\Program Files (x86)\\Steam\\steamapps\\common\\Skyrim\\Data\')",
             ),
-        ).group(
+        )
+        .group(
             ArgGroup::with_name("choice")
                 .args(&["game", "directory"])
                 .required(true),
-        ).arg(Arg::from_usage(
+        )
+        .arg(Arg::from_usage(
             "-h, --header 'The header of each BSA file will be printed'",
-        )).arg(
+        ))
+        .arg(
             Arg::from_usage("-e, --extensions [EXT] 'A list of file extensions to find (e.g. \'-e png,nif,wav\')'")
                 .use_delimiter(true)
                 .multiple(true),
-        ).arg(Arg::from_usage("-a, --all 'Find all file extensions'"))
+        )
+        .arg(Arg::from_usage("-a, --all 'Find all file extensions'"))
         .group(ArgGroup::with_name("find").args(&["extensions", "all"]))
         .arg(
             Arg::from_usage(
                 "-o, --output [PATH] 'Folder to output files to (use -o=\'\' or -o\"\" for current directory)'",
-            ).requires("find"),
-        ).get_matches();
+            )
+            .requires("find"),
+        )
+        .get_matches();
 
     let data_path = if matches.is_present("game") {
         let game = value_t_or_exit!(matches.value_of("game"), String);
