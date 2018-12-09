@@ -166,6 +166,12 @@ fn create_file_hashmap(
             size: file_record.size,
             offset: file_record.offset,
         };
+
+        // a name string in a OBFolderRecord stores paths with '\\' which is valid in Windows but not
+        // in Linux. this String::replace call will transform the slashes into something usable
+        #[cfg(not(windows))]
+        let folder_name = folder_name.replace("\\", "/");
+
         file_hashmap.insert(Path::new(&folder_name).join(&file_name), bsa_file);
     }
 
